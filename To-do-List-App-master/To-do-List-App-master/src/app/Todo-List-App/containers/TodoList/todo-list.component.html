@@ -1,0 +1,66 @@
+<div class="container main">
+    <div class="nav"><span class="dateClass"><i class="fa fa-calendar"></i> {{today | date: 'short'}}</span></div>
+    <div class="main-container">
+        <div class="header">
+            <h1>TODO LIST </h1>
+        </div>
+        <div class="info selectall">
+            <label class="checkbox-inline">
+                <input type="checkbox" (change)="selectAll($event)">Select All
+            </label>
+        </div>
+        <div class="inputDiv">
+            <input type="text" class="form-control addInput" placeholder="Things you want to do today?" [(ngModel)]="taskTitle" (keyup.enter)="addTask()">
+            <!-- Add Task button inside input area -->
+            <button class="btn btn-primary listBtn" (click)="addTask()">Add Task</button>
+        </div>
+        <div class="content">
+            <!-- Task list -->
+            <ul>
+                <!-- Task item -->
+                <li *ngFor="let task of tasks" @fade>
+                    <!-- Checkbox for task completion -->
+                    <input type="checkbox" [(ngModel)]="task.completed">
+                    <!-- Task title -->
+                    <div *ngIf="!task.editing; else editingTask" (dblclick)="toggleEdit(task)" [ngClass]="{completed: task.completed}">{{task.title}}</div>
+                    <!-- Edit task input -->
+                    <ng-template #editingTask>
+                        <input type="text" [(ngModel)]="task.title" (blur)="doneEditing(task)" (keyup.enter)="editTask(task)" (keyup.esc)="cancelEditing(task)" autofocus>
+                    </ng-template>
+                    <!-- Buttons for task actions -->
+                    <div *ngIf="!task.editing; else doneBtn">
+                        <button [ngClass]="{disabled: task.completed}" class="btn btn-success listBtn" (click)="toggleEdit(task)">
+                            <i class="fa fa-edit"></i> Edit
+                        </button>
+                    </div>
+                    <ng-template #doneBtn>
+                        <div>
+                            <button class="btn btn-success listBtn" (click)="editTask(task); toggleEdit(task)">
+                                <i class="fa fa-edit"></i> Done
+                            </button>
+                        </div>
+                    </ng-template>
+                    <div>
+                        <button class="btn btn-danger listBtn" (click)="deleteTask(task.id)">
+                            <i class="fa fa-trash"></i> Del
+                        </button>
+                    </div>
+                </li>
+            </ul>
+            <!-- Template for all tasks completed -->
+            <div *ngIf="remaining() === 0">
+                <todo-empty></todo-empty>
+            </div>
+            <hr>
+            <!-- Information about remaining tasks -->
+            <div class="info">
+                <div>{{ remaining()}} uncompleted tasks</div>
+            </div>
+            <!-- Button to clear completed tasks -->
+            <div *ngIf="atleastOneCompleted()">
+                <button class="btn btn-warning btn-block" (click)="deleteCompletedTask()">Clear Completed</button> 
+                <div class="alert alert-warning">You've selected an item</div>
+            </div>
+        </div>
+    </div>
+</div>
